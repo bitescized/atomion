@@ -95,7 +95,7 @@
         }
 
         .stable-button {
-            background-color: #2360A1
+            background-color: #2360A1;
             margin-right: 15px;
         }
 
@@ -380,13 +380,13 @@
                 ionStates: [{ charge: 3, shellConfiguration: [2, 8, 0], stable: true }],
             },
             Ga: {
-    name: "Gallium",
-    atomicNumber: 31,
-    group: 3,
-    color: "#BF5700",
-    shellConfiguration: [2, 8, 18, 3],
-    ionStates: [{ charge: 3, shellConfiguration: [2, 8, 18, 0], stable: true }],
-},
+                name: "Gallium",
+                atomicNumber: 31,
+                group: 3,
+                color: "#BF5700",
+                shellConfiguration: [2, 8, 18, 3],
+                ionStates: [{ charge: 3, shellConfiguration: [2, 8, 18, 0], stable: true }],
+            },
             // Group 6 - Chalcogens
             O: {
                 name: "Oxygen",
@@ -422,14 +422,7 @@
                 shellConfiguration: [2, 8, 7],
                 ionStates: [{ charge: -1, shellConfiguration: [2, 8, 8], stable: true }],
             },
-            Br: {
-                name: "Bromine",
-                atomicNumber: 35,
-                group: 7,
-                color: "#8E4585",
-                shellConfiguration: [2, 8, 18, 7],
-                ionStates: [{ charge: -1, shellConfiguration: [2, 8, 18, 8], stable: true }],
-            },
+
 
             // Group 8 - Noble Gases
             He: {
@@ -684,6 +677,7 @@
             
             const centerX = 100;
             const centerY = 80;
+            const lineHeight = 18; // Fixed: Move lineHeight to the top level
 
             const shellConfig = ionState ? ionState.shellConfiguration : element.shellConfiguration;
             const activeShellConfig = shellConfig.filter(count => count > 0);
@@ -743,7 +737,6 @@
             // Draw shell electron information
             if (showShellElectrons) {
                 const yStart = 160;
-                const lineHeight = 18;
                 const nonEmptyShells = shellConfig
                     .map((count, index) => ({ count, index }))
                     .filter(shell => shell.count > 0);
