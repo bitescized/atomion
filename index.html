@@ -1,797 +1,1027 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Comparing Atoms and Ions</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: white;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: white;
+      }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+      }
 
-        .element-selection {
-            margin-bottom: 30px;
-        }
+      .element-selection {
+        margin-bottom: 30px;
+      }
 
-        .element-selection h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #444;
-        }
+      .element-selection h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: #444;
+      }
 
-        .element-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+      .periodic-table {
+        display: grid;
+        grid-template-columns: repeat(18, 1fr);
+        gap: 1px;
+        max-width: 900px;
+        margin: 0 auto;
+        background-color: #f5f5f5;
+        padding: 8px;
+        border-radius: 8px;
+      }
 
-        .element-button {
-            padding: 8px 12px;
-            background-color: #f0f0f0;
-            color: black;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+      .element-cell {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+        border: 1px solid transparent;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+        font-size: 8px;
+        padding: 2px;
+        min-height: 30px;
+        position: relative;
+      }
 
-        .element-button.selected {
-            background-color: #4A6491;
-            color: white;
-        }
+      .element-cell.selectable {
+        cursor: pointer;
+        background-color: #fffbf0;
+        border-color: #ffd700;
+      }
 
-        .element-button:hover {
-            background-color: #e0e0e0;
-        }
+      .element-cell.selectable:hover {
+        transform: scale(1.8);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 100;
+        background-color: #fff8dc;
+        border-color: #ffa500;
+        border-width: 2px;
+      }
 
-        .element-button.selected:hover {
-            background-color: #3a5481;
-        }
+      .element-cell.selected {
+        background-color: #ffeb3b;
+        border-color: #f57f17;
+        border-width: 2px;
+        font-weight: bold;
+      }
 
-        .display-options {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
+      .element-cell.selected:hover {
+        background-color: #fdd835;
+      }
 
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
+      .element-symbol {
+        font-weight: bold;
+        font-size: 10px;
+        margin-bottom: 1px;
+      }
 
-        .checkbox-label input {
-            margin-right: 8px;
-        }
+      .element-name {
+        font-size: 6px;
+        text-align: center;
+        line-height: 1;
+        display: none;
+      }
 
-        .control-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-        }
+      .element-cell:hover .element-name {
+        display: block;
+        font-size: 8px;
+      }
 
-        .control-button {
-            padding: 8px 12px;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+      .element-number {
+        font-size: 6px;
+        color: #666;
+        margin-bottom: 1px;
+      }
 
-        .clear-button {
-            background-color: #E57373;
-        }
+      .element-cell:hover .element-number {
+        font-size: 8px;
+      }
 
-        .stable-button {
-            background-color: #2360A1;
-            margin-right: 15px;
-        }
+      .element-cell:hover .element-symbol {
+        font-size: 12px;
+      }
 
-        .ion-button {
-            background-color: #F2A128;
-        }
+      .empty-cell {
+        background-color: #f0f0f0;
+        border-color: #e0e0e0;
+      }
 
-        .neutral-button {
-            background-color: #97AFAE;
-            margin-left: 15px;
-        }
+      .placeholder-cell {
+        background-color: #f8f8f8;
+        border-color: #e8e8e8;
+        opacity: 0.5;
+      }
 
-        .control-button:hover {
-            opacity: 0.9;
-        }
+      .selection-info {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+      }
 
-        .atoms-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-        }
+      .display-options {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
 
-        .atom-card {
-            position: relative;
-            width: 220px;
-            height: 420px;
-            text-align: center;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            display: flex;
-            flex-direction: column;
-        }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
 
-        .atom-card h3 {
-            margin: 0 0 10px;
-            color: #333;
-        }
+      .checkbox-label input {
+        margin-right: 8px;
+      }
 
-        .ion-toggle {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 5px;
-        }
+      .control-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 25px;
+      }
 
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 20px;
-            margin: 0 10px;
-            cursor: pointer;
-        }
+      .control-button {
+        padding: 8px 12px;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
 
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+      .clear-button {
+        background-color: #e57373;
+      }
 
-        .toggle-slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            border-radius: 34px;
-            transition: 0.4s;
-        }
+      .stable-button {
+        background-color: #2360a1;
+        margin-right: 15px;
+      }
 
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            border-radius: 50%;
-            transition: 0.4s;
-        }
+      .ion-button {
+        background-color: #f2a128;
+      }
 
-        .toggle-switch input:checked + .toggle-slider {
-            background-color: #2196F3;
-        }
+      .neutral-button {
+        background-color: #97afae;
+        margin-left: 15px;
+      }
 
-        .toggle-switch input:checked + .toggle-slider:before {
-            transform: translateX(20px);
-        }
+      .control-button:hover {
+        opacity: 0.9;
+      }
 
-        .charge-display {
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 16px;
-        }
+      .atoms-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+      }
 
-        .positive-charge {
-            color: #e74c3c;
-        }
+      .atom-card {
+        position: relative;
+        width: 220px;
+        height: 420px;
+        text-align: center;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .negative-charge {
-            color: #3498db;
-        }
+      .atom-card h3 {
+        margin: 0 0 10px;
+        color: #333;
+      }
 
-        .canvas-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+      .ion-toggle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 5px;
+      }
 
-        .atom-canvas {
-            background-color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-        }
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 20px;
+        margin: 0 10px;
+        cursor: pointer;
+      }
 
-        .status-message {
-            margin-top: 5px;
-            font-size: 16px;
-            font-weight: bold;
-        }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
 
-        .stable {
-            color: #27ae60;
-        }
+      .toggle-slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        border-radius: 34px;
+        transition: 0.4s;
+      }
 
-        .unstable {
-            color: #e67e22;
-        }
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        border-radius: 50%;
+        transition: 0.4s;
+      }
 
-        .noble-gas-message {
-            color: #e74c3c;
-            font-size: 12px;
-        }
+      .toggle-switch input:checked + .toggle-slider {
+        background-color: #2196f3;
+      }
 
-        .no-elements {
-            text-align: center;
-            padding: 30px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-        }
+      .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(20px);
+      }
 
-        .hidden {
-            display: none;
-        }
+      .charge-display {
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .positive-charge {
+        color: #e74c3c;
+      }
+
+      .negative-charge {
+        color: #3498db;
+      }
+
+      .canvas-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .atom-canvas {
+        background-color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid #ddd;
+      }
+
+      .status-message {
+        margin-top: 5px;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .stable {
+        color: #27ae60;
+      }
+
+      .unstable {
+        color: #e67e22;
+      }
+
+      .noble-gas-message {
+        color: #e74c3c;
+        font-size: 12px;
+      }
+
+      .no-elements {
+        text-align: center;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+      }
+
+      .hidden {
+        display: none;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <!-- Element selection panel -->
     <div class="element-selection">
-        <h2>Select Elements (up to 6):</h2>
-        <div class="element-buttons" id="elementButtons"></div>
+      <h2>Select Elements (up to 6):</h2>
+      <div class="periodic-table" id="periodicTable"></div>
+      <div class="selection-info">
+        Hover over elements to see their names, click to select/deselect
+      </div>
     </div>
 
     <!-- Display options -->
     <div class="display-options">
-        <label class="checkbox-label">
-            <input type="checkbox" id="showCharge" checked>
-            Show Charge
-        </label>
-        <label class="checkbox-label">
-            <input type="checkbox" id="showStability" checked>
-            Show Stability
-        </label>
-        <label class="checkbox-label">
-            <input type="checkbox" id="showElectrons">
-            Show Total # Electrons
-        </label>
-        <label class="checkbox-label">
-            <input type="checkbox" id="showProtons">
-            Show Total # Protons
-        </label>
-        <label class="checkbox-label">
-            <input type="checkbox" id="showShellElectrons">
-            Show # Electrons in Each Shell
-        </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showElectrons" />
+        Show Total # Electrons
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showProtons" />
+        Show Total # Protons
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showShellElectrons" />
+        Show # Electrons in Each Shell
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showCharge" />
+        Show Charge
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showStability" />
+        Show Stability
+      </label>
     </div>
 
     <!-- Control buttons -->
     <div class="control-buttons" id="controlButtons">
-        <button class="control-button clear-button" onclick="clearAllElements()">
-            Clear All Elements
+      <button class="control-button clear-button" onclick="clearAllElements()">
+        Clear All Elements
+      </button>
+      <div style="display: flex; gap: 20px">
+        <button
+          class="control-button stable-button"
+          onclick="showStableStates()"
+        >
+          Show More Stable State
         </button>
-        <div style="display: flex; gap: 20px;">
-            <button class="control-button stable-button" onclick="showStableStates()">
-                Show Stable State
-            </button>
-            <button class="control-button ion-button" onclick="showIonStates()">
-                Show Ion State
-            </button>
-            <button class="control-button neutral-button" onclick="resetAllElements()">
-                Show Neutral Atom State
-            </button>
-        </div>
+        <button class="control-button ion-button" onclick="showIonStates()">
+          Show Ion State
+        </button>
+        <button
+          class="control-button neutral-button"
+          onclick="resetAllElements()"
+        >
+          Show Neutral Atom State
+        </button>
+      </div>
     </div>
 
     <!-- Selected elements display area -->
     <div class="atoms-container" id="atomsContainer">
-        <div class="no-elements">
-            <p>Select up to 6 elements to compare their atomic and ionic structures</p>
-        </div>
+      <div class="no-elements">
+        <p>
+          Select up to 6 elements to compare their atomic and ionic structures
+        </p>
+      </div>
     </div>
 
     <script>
-        // Global state
-        let selectedElements = ["Na", "Cl", "Ne"];
-        let elementStates = {};
-        let showCharge = true;
-        let showStability = true;
-        let showElectrons = false;
-        let showProtons = false;
-        let showShellElectrons = false;
+      // Global state
+      let selectedElements = [];
+      let elementStates = {};
+      let showCharge = false;
+      let showStability = false;
+      let showElectrons = false;
+      let showProtons = false;
+      let showShellElectrons = false;
 
-        // Element data
-        const elements = {
-            // Group 1 - Alkali Metals
-            Li: {
-                name: "Lithium",
-                atomicNumber: 3,
-                group: 1,
-                color: "#2A9D8F",
-                shellConfiguration: [2, 1],
-                ionStates: [{ charge: 1, shellConfiguration: [2, 0], stable: true }],
-            },
-            Na: {
-                name: "Sodium",
-                atomicNumber: 11,
-                group: 1,
-                color: "#2A9D8F",
-                shellConfiguration: [2, 8, 1],
-                ionStates: [{ charge: 1, shellConfiguration: [2, 8, 0], stable: true }],
-            },
-            K: {
-                name: "Potassium",
-                atomicNumber: 19,
-                group: 1,
-                color: "#2A9D8F",
-                shellConfiguration: [2, 8, 8, 1],
-                ionStates: [{ charge: 1, shellConfiguration: [2, 8, 8, 0], stable: true }],
-            },
+      // Element data
+      const elements = {
+        // Group 1 - Alkali Metals
+        Li: {
+          name: "Lithium",
+          atomicNumber: 3,
+          group: 1,
+          color: "#2A9D8F",
+          shellConfiguration: [2, 1],
+          ionStates: [{ charge: 1, shellConfiguration: [2, 0], stable: true }],
+          position: { period: 2, group: 1 }
+        },
+        Na: {
+          name: "Sodium",
+          atomicNumber: 11,
+          group: 1,
+          color: "#2A9D8F",
+          shellConfiguration: [2, 8, 1],
+          ionStates: [
+            { charge: 1, shellConfiguration: [2, 8, 0], stable: true },
+          ],
+          position: { period: 3, group: 1 }
+        },
+        K: {
+          name: "Potassium",
+          atomicNumber: 19,
+          group: 1,
+          color: "#2A9D8F",
+          shellConfiguration: [2, 8, 8, 1],
+          ionStates: [
+            { charge: 1, shellConfiguration: [2, 8, 8, 0], stable: true },
+          ],
+          position: { period: 4, group: 1 }
+        },
 
-            // Group 2 - Alkaline Earth Metals
-            Be: {
-                name: "Beryllium",
-                atomicNumber: 4,
-                group: 2,
-                color: "#4A6491",
-                shellConfiguration: [2, 2],
-                ionStates: [{ charge: 2, shellConfiguration: [2, 0], stable: true }],
-            },
-            Mg: {
-                name: "Magnesium",
-                atomicNumber: 12,
-                group: 2,
-                color: "#4A6491",
-                shellConfiguration: [2, 8, 2],
-                ionStates: [{ charge: 2, shellConfiguration: [2, 8, 0], stable: true }],
-            },
-            Ca: {
-                name: "Calcium",
-                atomicNumber: 20,
-                group: 2,
-                color: "#4A6491",
-                shellConfiguration: [2, 8, 8, 2],
-                ionStates: [{ charge: 2, shellConfiguration: [2, 8, 8, 0], stable: true }],
-            },
+        // Group 2 - Alkaline Earth Metals
+        Be: {
+          name: "Beryllium",
+          atomicNumber: 4,
+          group: 2,
+          color: "#4A6491",
+          shellConfiguration: [2, 2],
+          ionStates: [{ charge: 2, shellConfiguration: [2, 0], stable: true }],
+          position: { period: 2, group: 2 }
+        },
+        Mg: {
+          name: "Magnesium",
+          atomicNumber: 12,
+          group: 2,
+          color: "#4A6491",
+          shellConfiguration: [2, 8, 2],
+          ionStates: [
+            { charge: 2, shellConfiguration: [2, 8, 0], stable: true },
+          ],
+          position: { period: 3, group: 2 }
+        },
+        Ca: {
+          name: "Calcium",
+          atomicNumber: 20,
+          group: 2,
+          color: "#4A6491",
+          shellConfiguration: [2, 8, 8, 2],
+          ionStates: [
+            { charge: 2, shellConfiguration: [2, 8, 8, 0], stable: true },
+          ],
+          position: { period: 4, group: 2 }
+        },
 
-            // Group 3 - Selected elements
-            Al: {
-                name: "Aluminum",
-                atomicNumber: 13,
-                group: 3,
-                color: "#BF5700",
-                shellConfiguration: [2, 8, 3],
-                ionStates: [{ charge: 3, shellConfiguration: [2, 8, 0], stable: true }],
-            },
-            Ga: {
-                name: "Gallium",
-                atomicNumber: 31,
-                group: 3,
-                color: "#BF5700",
-                shellConfiguration: [2, 8, 18, 3],
-                ionStates: [{ charge: 3, shellConfiguration: [2, 8, 18, 0], stable: true }],
-            },
-            // Group 6 - Chalcogens
-            O: {
-                name: "Oxygen",
-                atomicNumber: 8,
-                group: 6,
-                color: "#C16E70",
-                shellConfiguration: [2, 6],
-                ionStates: [{ charge: -2, shellConfiguration: [2, 8], stable: true }],
-            },
-            S: {
-                name: "Sulfur",
-                atomicNumber: 16,
-                group: 6,
-                color: "#C16E70",
-                shellConfiguration: [2, 8, 6],
-                ionStates: [{ charge: -2, shellConfiguration: [2, 8, 8], stable: true }],
-            },
+        // Group 13 - Aluminum group
+        Al: {
+          name: "Aluminum",
+          atomicNumber: 13,
+          group: 13,
+          color: "#BF5700",
+          shellConfiguration: [2, 8, 3],
+          ionStates: [
+            { charge: 3, shellConfiguration: [2, 8, 0], stable: true },
+          ],
+          position: { period: 3, group: 13 }
+        },
+        Ga: {
+          name: "Gallium",
+          atomicNumber: 31,
+          group: 13,
+          color: "#BF5700",
+          shellConfiguration: [2, 8, 18, 3],
+          ionStates: [
+            { charge: 3, shellConfiguration: [2, 8, 18, 0], stable: true },
+          ],
+          position: { period: 4, group: 13 }
+        },
+        // Group 16 - Chalcogens
+        O: {
+          name: "Oxygen",
+          atomicNumber: 8,
+          group: 16,
+          color: "#C16E70",
+          shellConfiguration: [2, 6],
+          ionStates: [{ charge: -2, shellConfiguration: [2, 8], stable: true }],
+          position: { period: 2, group: 16 }
+        },
+        S: {
+          name: "Sulfur",
+          atomicNumber: 16,
+          group: 16,
+          color: "#C16E70",
+          shellConfiguration: [2, 8, 6],
+          ionStates: [
+            { charge: -2, shellConfiguration: [2, 8, 8], stable: true },
+          ],
+          position: { period: 3, group: 16 }
+        },
 
-            // Group 7 - Halogens
-            F: {
-                name: "Fluorine",
-                atomicNumber: 9,
-                group: 7,
-                color: "#8E4585",
-                shellConfiguration: [2, 7],
-                ionStates: [{ charge: -1, shellConfiguration: [2, 8], stable: true }],
-            },
-            Cl: {
-                name: "Chlorine",
-                atomicNumber: 17,
-                group: 7,
-                color: "#8E4585",
-                shellConfiguration: [2, 8, 7],
-                ionStates: [{ charge: -1, shellConfiguration: [2, 8, 8], stable: true }],
-            },
+        // Group 17 - Halogens
+        F: {
+          name: "Fluorine",
+          atomicNumber: 9,
+          group: 17,
+          color: "#8E4585",
+          shellConfiguration: [2, 7],
+          ionStates: [{ charge: -1, shellConfiguration: [2, 8], stable: true }],
+          position: { period: 2, group: 17 }
+        },
+        Cl: {
+          name: "Chlorine",
+          atomicNumber: 17,
+          group: 17,
+          color: "#8E4585",
+          shellConfiguration: [2, 8, 7],
+          ionStates: [
+            { charge: -1, shellConfiguration: [2, 8, 8], stable: true },
+          ],
+          position: { period: 3, group: 17 }
+        },
 
+        // Group 18 - Noble Gases
+        He: {
+          name: "Helium",
+          atomicNumber: 2,
+          group: 18,
+          color: "#B7801C",
+          shellConfiguration: [2],
+          ionStates: [],
+          position: { period: 1, group: 18 }
+        },
+        Ne: {
+          name: "Neon",
+          atomicNumber: 10,
+          group: 18,
+          color: "#B7801C",
+          shellConfiguration: [2, 8],
+          ionStates: [],
+          position: { period: 2, group: 18 }
+        },
+        Ar: {
+          name: "Argon",
+          atomicNumber: 18,
+          group: 18,
+          color: "#B7801C",
+          shellConfiguration: [2, 8, 8],
+          ionStates: [],
+          position: { period: 3, group: 18 }
+        },
+      };
 
-            // Group 8 - Noble Gases
-            He: {
-                name: "Helium",
-                atomicNumber: 2,
-                group: 8,
-                color: "#B7801C",
-                shellConfiguration: [2],
-                ionStates: [],
-            },
-            Ne: {
-                name: "Neon",
-                atomicNumber: 10,
-                group: 8,
-                color: "#B7801C",
-                shellConfiguration: [2, 8],
-                ionStates: [],
-            },
-            Ar: {
-                name: "Argon",
-                atomicNumber: 18,
-                group: 8,
-                color: "#B7801C",
-                shellConfiguration: [2, 8, 8],
-                ionStates: [],
-            },
-        };
+      // Initialize
+      function init() {
+        // Initialize element states
+        Object.keys(elements).forEach((el) => {
+          elementStates[el] = { showIon: false };
+        });
 
-        // Initialize
-        function init() {
-            // Initialize element states
-            Object.keys(elements).forEach(el => {
-                elementStates[el] = { showIon: false };
-            });
+        createPeriodicTable();
+        updateDisplay();
+        setupEventListeners();
+      }
 
-            createElementButtons();
-            updateDisplay();
-            setupEventListeners();
-        }
+      function createPeriodicTable() {
+        const table = document.getElementById("periodicTable");
+        table.innerHTML = "";
 
-        function createElementButtons() {
-            const buttonContainer = document.getElementById('elementButtons');
-            buttonContainer.innerHTML = '';
+        // Define which positions should have elements in a standard periodic table
+        const elementPositions = new Set([
+          // Period 1
+          "1-1", "1-18", // H, He
+          // Period 2  
+          "2-1", "2-2", "2-13", "2-14", "2-15", "2-16", "2-17", "2-18", // Li-Ne
+          // Period 3
+          "3-1", "3-2", "3-13", "3-14", "3-15", "3-16", "3-17", "3-18", // Na-Ar
+          // Period 4
+          "4-1", "4-2", "4-3", "4-4", "4-5", "4-6", "4-7", "4-8", "4-9", "4-10", "4-11", "4-12", "4-13", "4-14", "4-15", "4-16", "4-17", "4-18", // K-Kr
+          // Period 5
+          "5-1", "5-2", "5-3", "5-4", "5-5", "5-6", "5-7", "5-8", "5-9", "5-10", "5-11", "5-12", "5-13", "5-14", "5-15", "5-16", "5-17", "5-18", // Rb-Xe
+          // Period 6 (simplified - no lanthanides)
+          "6-1", "6-2", "6-3", "6-4", "6-5", "6-6", "6-7", "6-8", "6-9", "6-10", "6-11", "6-12", "6-13", "6-14", "6-15", "6-16", "6-17", "6-18", // Cs-Rn
+          // Period 7 (simplified - no actinides)
+          "7-1", "7-2", "7-3", "7-4", "7-5", "7-6", "7-7", "7-8", "7-9", "7-10", "7-11", "7-12", "7-13", "7-14", "7-15", "7-16", "7-17", "7-18" // Fr-Og
+        ]);
 
-            Object.keys(elements).forEach(element => {
-                const button = document.createElement('button');
-                button.className = 'element-button';
-                button.textContent = `${element} - ${elements[element].name}`;
-                button.onclick = () => toggleElementSelection(element);
-                buttonContainer.appendChild(button);
-            });
-        }
+        // Create a 7x18 grid for the full periodic table
+        for (let period = 1; period <= 7; period++) {
+          for (let group = 1; group <= 18; group++) {
+            const cell = document.createElement("div");
+            const positionKey = `${period}-${group}`;
+            
+            // Find element for this position
+            const element = Object.keys(elements).find(el => 
+              elements[el].position.period === period && 
+              elements[el].position.group === group
+            );
 
-        function setupEventListeners() {
-            document.getElementById('showCharge').onchange = (e) => {
-                showCharge = e.target.checked;
-                updateDisplay();
-            };
-            document.getElementById('showStability').onchange = (e) => {
-                showStability = e.target.checked;
-                updateDisplay();
-            };
-            document.getElementById('showElectrons').onchange = (e) => {
-                showElectrons = e.target.checked;
-                updateDisplay();
-            };
-            document.getElementById('showProtons').onchange = (e) => {
-                showProtons = e.target.checked;
-                updateDisplay();
-            };
-            document.getElementById('showShellElectrons').onchange = (e) => {
-                showShellElectrons = e.target.checked;
-                updateDisplay();
-            };
-        }
-
-        function toggleElementSelection(element) {
-            if (selectedElements.includes(element)) {
-                selectedElements = selectedElements.filter(el => el !== element);
-            } else if (selectedElements.length < 6) {
-                selectedElements.push(element);
-                elementStates[element] = { showIon: false };
+            if (element) {
+              // We have data for this element
+              cell.className = "element-cell selectable";
+              cell.innerHTML = `
+                <div class="element-number">${elements[element].atomicNumber}</div>
+                <div class="element-symbol">${element}</div>
+                <div class="element-name">${elements[element].name}</div>
+              `;
+              cell.onclick = () => toggleElementSelection(element);
+              cell.title = `${elements[element].name} (${element}) - Click to select`;
+            } else if (elementPositions.has(positionKey)) {
+              // This position should have an element, but we don't have data for it
+              cell.className = "element-cell placeholder-cell";
+              cell.innerHTML = `<div class="element-symbol">•</div>`;
+              cell.title = "Element position (not available in this simulation)";
             } else {
-                selectedElements.shift();
-                selectedElements.push(element);
-                elementStates[element] = { showIon: false };
+              // Empty space in the periodic table
+              cell.className = "element-cell empty-cell";
             }
-            updateDisplay();
+            
+            table.appendChild(cell);
+          }
         }
+      }
 
-        function toggleIonState(element) {
-            elementStates[element] = {
-                ...elementStates[element],
-                showIon: !elementStates[element].showIon
-            };
-            updateDisplay();
+      function setupEventListeners() {
+        document.getElementById("showCharge").onchange = (e) => {
+          showCharge = e.target.checked;
+          updateDisplay();
+        };
+        document.getElementById("showStability").onchange = (e) => {
+          showStability = e.target.checked;
+          updateDisplay();
+        };
+        document.getElementById("showElectrons").onchange = (e) => {
+          showElectrons = e.target.checked;
+          updateDisplay();
+        };
+        document.getElementById("showProtons").onchange = (e) => {
+          showProtons = e.target.checked;
+          updateDisplay();
+        };
+        document.getElementById("showShellElectrons").onchange = (e) => {
+          showShellElectrons = e.target.checked;
+          updateDisplay();
+        };
+      }
+
+      function toggleElementSelection(element) {
+        if (selectedElements.includes(element)) {
+          selectedElements = selectedElements.filter((el) => el !== element);
+        } else if (selectedElements.length < 6) {
+          selectedElements.push(element);
+          elementStates[element] = { showIon: false };
+        } else {
+          selectedElements.shift();
+          selectedElements.push(element);
+          elementStates[element] = { showIon: false };
         }
+        updateDisplay();
+      }
 
-        function clearAllElements() {
-            selectedElements = [];
-            updateDisplay();
-        }
+      function toggleIonState(element) {
+        elementStates[element] = {
+          ...elementStates[element],
+          showIon: !elementStates[element].showIon,
+        };
+        updateDisplay();
+      }
 
-        function resetAllElements() {
-            selectedElements.forEach(element => {
-                elementStates[element] = { showIon: false };
-            });
-            updateDisplay();
-        }
+      function clearAllElements() {
+        selectedElements = [];
+        updateDisplay();
+      }
 
-        function showStableStates() {
-            selectedElements.forEach(element => {
-                if (elements[element].group === 8) {
-                    elementStates[element] = { showIon: false };
-                } else if (elements[element].ionStates && elements[element].ionStates.length > 0) {
-                    elementStates[element] = { showIon: true };
-                } else {
-                    elementStates[element] = { showIon: false };
-                }
-            });
-            updateDisplay();
-        }
+      function resetAllElements() {
+        selectedElements.forEach((element) => {
+          elementStates[element] = { showIon: false };
+        });
+        updateDisplay();
+      }
 
-        function showIonStates() {
-            selectedElements.forEach(element => {
-                elementStates[element] = { showIon: true };
-            });
-            updateDisplay();
-        }
+      function showStableStates() {
+        selectedElements.forEach((element) => {
+          if (elements[element].group === 18) {
+            elementStates[element] = { showIon: false };
+          } else if (
+            elements[element].ionStates &&
+            elements[element].ionStates.length > 0
+          ) {
+            elementStates[element] = { showIon: true };
+          } else {
+            elementStates[element] = { showIon: false };
+          }
+        });
+        updateDisplay();
+      }
 
-        function updateDisplay() {
-            updateElementButtons();
-            updateControlButtons();
-            updateAtomsContainer();
-        }
+      function showIonStates() {
+        selectedElements.forEach((element) => {
+          elementStates[element] = { showIon: true };
+        });
+        updateDisplay();
+      }
 
-        function updateElementButtons() {
-            const buttons = document.querySelectorAll('.element-button');
-            buttons.forEach((button, index) => {
-                const element = Object.keys(elements)[index];
-                button.classList.toggle('selected', selectedElements.includes(element));
-            });
-        }
+      function updateDisplay() {
+        updatePeriodicTable();
+        updateControlButtons();
+        updateAtomsContainer();
+      }
 
-        function updateControlButtons() {
-            const controlButtons = document.getElementById('controlButtons');
-            controlButtons.classList.toggle('hidden', selectedElements.length === 0);
-        }
+      function updatePeriodicTable() {
+        const cells = document.querySelectorAll(".element-cell.selectable");
+        cells.forEach((cell) => {
+          const symbol = cell.querySelector(".element-symbol")?.textContent;
+          if (symbol) {
+            cell.classList.toggle("selected", selectedElements.includes(symbol));
+          }
+        });
+      }
 
-        function updateAtomsContainer() {
-            const container = document.getElementById('atomsContainer');
-            container.innerHTML = '';
+      function updateControlButtons() {
+        const controlButtons = document.getElementById("controlButtons");
+        controlButtons.classList.toggle(
+          "hidden",
+          selectedElements.length === 0
+        );
+      }
 
-            if (selectedElements.length === 0) {
-                container.innerHTML = `
+      function updateAtomsContainer() {
+        const container = document.getElementById("atomsContainer");
+        container.innerHTML = "";
+
+        if (selectedElements.length === 0) {
+          container.innerHTML = `
                     <div class="no-elements">
                         <p>Select up to 6 elements to compare their atomic and ionic structures</p>
                     </div>
                 `;
-                return;
-            }
-
-            selectedElements.forEach(element => {
-                const card = createAtomCard(element);
-                container.appendChild(card);
-            });
+          return;
         }
 
-        function createAtomCard(element) {
-            const card = document.createElement('div');
-            card.className = 'atom-card';
+        selectedElements.forEach((element) => {
+          const card = createAtomCard(element);
+          container.appendChild(card);
+        });
+      }
 
-            const isIon = elementStates[element]?.showIon;
-            const hasIonState = elements[element].ionStates.length > 0;
-            const ionState = hasIonState ? elements[element].ionStates[0] : null;
+      function createAtomCard(element) {
+        const card = document.createElement("div");
+        card.className = "atom-card";
 
-            card.innerHTML = `
+        const isIon = elementStates[element]?.showIon;
+        const hasIonState = elements[element].ionStates.length > 0;
+        const ionState = hasIonState ? elements[element].ionStates[0] : null;
+
+        card.innerHTML = `
                 <h3>${elements[element].name} (${element})</h3>
                 
                 <div class="ion-toggle">
                     <span>Neutral</span>
                     <label class="toggle-switch">
-                        <input type="checkbox" ${isIon ? 'checked' : ''} onchange="toggleIonState('${element}')">
+                        <input type="checkbox" ${
+                          isIon ? "checked" : ""
+                        } onchange="toggleIonState('${element}')">
                         <span class="toggle-slider"></span>
                     </label>
                     <span>Ion</span>
                 </div>
 
-                ${isIon && hasIonState ? `
-                    <div class="charge-display ${ionState.charge > 0 ? 'positive-charge' : 'negative-charge'}">
-                        Charge: ${ionState.charge > 0 ? '+' : ''}${ionState.charge}
+                ${
+                  isIon && hasIonState && showCharge
+                    ? `
+                    <div class="charge-display ${
+                      ionState.charge > 0
+                        ? "positive-charge"
+                        : "negative-charge"
+                    }">
+                        Charge: ${ionState.charge > 0 ? "+" : ""}${
+                        ionState.charge
+                      }
                     </div>
-                ` : ''}
+                `
+                    : ""
+                }
 
                 <div class="canvas-container">
                     <canvas class="atom-canvas" width="200" height="300" onclick="handleCanvasClick(event, '${element}')"></canvas>
                 </div>
 
-                ${elements[element].group === 8 && isIon ? `
+                ${
+                  elements[element].group === 18 && isIon
+                    ? `
                     <div class="status-message noble-gas-message">
                         Noble gases typically do not form ions
                     </div>
-                ` : ''}
+                `
+                    : ""
+                }
 
-                ${elements[element].group === 8 && !isIon ? `
-                    <div class="status-message stable">Stable</div>
-                ` : ''}
+                ${
+                  elements[element].group === 18 && !isIon && showStability
+                    ? `
+                    <div class="status-message stable">More Stable</div>
+                `
+                    : ""
+                }
 
-                ${showStability && !isIon && elements[element].group !== 8 ? `
-                    <div class="status-message unstable">Unstable</div>
-                ` : ''}
+                ${
+                  showStability && !isIon && elements[element].group !== 18
+                    ? `
+                    <div class="status-message unstable">Less Stable</div>
+                `
+                    : ""
+                }
 
-                ${showStability && isIon && hasIonState ? `
-                    <div class="status-message ${ionState.stable ? 'stable' : 'unstable'}">
-                        ${ionState.stable ? 'Stable' : 'Unstable'}
+                ${
+                  showStability && isIon && hasIonState
+                    ? `
+                    <div class="status-message ${
+                      ionState.stable ? "stable" : "unstable"
+                    }">
+                        ${ionState.stable ? "More Stable" : "Less Stable"}
                     </div>
-                ` : ''}
+                `
+                    : ""
+                }
             `;
 
-            // Draw the atom after the card is created
-            setTimeout(() => {
-                const canvas = card.querySelector('canvas');
-                drawAtom(canvas, element);
-            }, 10);
+        // Draw the atom after the card is created
+        setTimeout(() => {
+          const canvas = card.querySelector("canvas");
+          drawAtom(canvas, element);
+        }, 10);
 
-            return card;
+        return card;
+      }
+
+      function handleCanvasClick(event, element) {
+        const canvas = event.target;
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        const centerX = canvas.width / 2;
+        const centerY = 80;
+
+        const dx = x - centerX;
+        const dy = y - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 40) {
+          toggleIonState(element);
         }
+      }
 
-        function handleCanvasClick(event, element) {
-            const canvas = event.target;
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+      function drawAtom(canvas, elementSymbol) {
+        const ctx = canvas.getContext("2d");
+        const element = elements[elementSymbol];
+        const isIon = elementStates[elementSymbol]?.showIon;
+        const ionState =
+          isIon && element.ionStates.length > 0 ? element.ionStates[0] : null;
 
-            const centerX = canvas.width / 2;
-            const centerY = 80;
+        const centerX = 100;
+        const centerY = 80;
+        const lineHeight = 18; // Fixed: Move lineHeight to the top level
 
-            const dx = x - centerX;
-            const dy = y - centerY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+        const shellConfig = ionState
+          ? ionState.shellConfiguration
+          : element.shellConfiguration;
+        const activeShellConfig = shellConfig.filter((count) => count > 0);
+        const totalShells = activeShellConfig.length;
 
-            if (distance < 40) {
-                toggleIonState(element);
-            }
-        }
+        let scaleFactor = 1;
+        if (totalShells > 3) scaleFactor = 0.7;
+        else if (totalShells === 3) scaleFactor = 0.85;
 
-        function drawAtom(canvas, elementSymbol) {
-            const ctx = canvas.getContext('2d');
-            const element = elements[elementSymbol];
-            const isIon = elementStates[elementSymbol]?.showIon;
-            const ionState = isIon && element.ionStates.length > 0 ? element.ionStates[0] : null;
-            
-            const centerX = 100;
-            const centerY = 80;
-            const lineHeight = 18; // Fixed: Move lineHeight to the top level
+        const nucleusRadius = 16;
 
-            const shellConfig = ionState ? ionState.shellConfiguration : element.shellConfiguration;
-            const activeShellConfig = shellConfig.filter(count => count > 0);
-            const totalShells = activeShellConfig.length;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            let scaleFactor = 1;
-            if (totalShells > 3) scaleFactor = 0.7;
-            else if (totalShells === 3) scaleFactor = 0.85;
+        // Draw nucleus
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, nucleusRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = element.color;
+        ctx.fill();
 
-            const nucleusRadius = 16;
+        // Draw element symbol
+        ctx.fillStyle = "white";
+        ctx.font = "14px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(elementSymbol, centerX, centerY);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Draw shells and electrons
+        let visibleShellIndex = 0;
+        shellConfig.forEach((electronCount, originalShellIndex) => {
+          if (electronCount === 0) return;
 
-            // Draw nucleus
+          const shellRadius = (30 + visibleShellIndex * 22) * scaleFactor;
+
+          // Draw shell circle
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, shellRadius, 0, 2 * Math.PI);
+          ctx.strokeStyle = "#aaaaaa";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Draw electrons
+          const electronsToShow = Math.min(electronCount, 8);
+          for (let i = 0; i < electronsToShow; i++) {
+            const angle = (i / electronsToShow) * 2 * Math.PI;
+            const x = centerX + shellRadius * Math.cos(angle);
+            const y = centerY + shellRadius * Math.sin(angle);
+
             ctx.beginPath();
-            ctx.arc(centerX, centerY, nucleusRadius, 0, 2 * Math.PI);
-            ctx.fillStyle = element.color;
+            ctx.arc(x, y, 4 * scaleFactor, 0, 2 * Math.PI);
+            ctx.fillStyle = "#3498db";
             ctx.fill();
+          }
 
-            // Draw element symbol
-            ctx.fillStyle = "white";
-            ctx.font = "14px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(elementSymbol, centerX, centerY);
+          visibleShellIndex++;
+        });
 
-            // Draw shells and electrons
-            let visibleShellIndex = 0;
-            shellConfig.forEach((electronCount, originalShellIndex) => {
-                if (electronCount === 0) return;
+        // Draw shell electron information
+        if (showShellElectrons) {
+          const yStart = 160;
+          const nonEmptyShells = shellConfig
+            .map((count, index) => ({ count, index }))
+            .filter((shell) => shell.count > 0);
 
-                const shellRadius = (30 + visibleShellIndex * 22) * scaleFactor;
+          const backgroundWidth = 160;
+          const backgroundHeight = nonEmptyShells.length * lineHeight + 10;
+          const backgroundX = centerX - backgroundWidth / 2;
+          const backgroundY = yStart - 6;
 
-                // Draw shell circle
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, shellRadius, 0, 2 * Math.PI);
-                ctx.strokeStyle = "#aaaaaa";
-                ctx.lineWidth = 1;
-                ctx.stroke();
+          ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+          ctx.fillRect(
+            backgroundX,
+            backgroundY,
+            backgroundWidth,
+            backgroundHeight
+          );
 
-                // Draw electrons
-                const electronsToShow = Math.min(electronCount, 8);
-                for (let i = 0; i < electronsToShow; i++) {
-                    const angle = (i / electronsToShow) * 2 * Math.PI;
-                    const x = centerX + shellRadius * Math.cos(angle);
-                    const y = centerY + shellRadius * Math.sin(angle);
+          ctx.fillStyle = "#333";
+          ctx.font = "bold 13px Arial";
+          ctx.textAlign = "left";
 
-                    ctx.beginPath();
-                    ctx.arc(x, y, 4 * scaleFactor, 0, 2 * Math.PI);
-                    ctx.fillStyle = "#3498db";
-                    ctx.fill();
-                }
-
-                visibleShellIndex++;
-            });
-
-            // Draw shell electron information
-            if (showShellElectrons) {
-                const yStart = 160;
-                const nonEmptyShells = shellConfig
-                    .map((count, index) => ({ count, index }))
-                    .filter(shell => shell.count > 0);
-
-                const backgroundWidth = 160;
-                const backgroundHeight = nonEmptyShells.length * lineHeight + 10;
-                const backgroundX = centerX - backgroundWidth / 2;
-                const backgroundY = yStart - 6;
-
-                ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-                ctx.fillRect(backgroundX, backgroundY, backgroundWidth, backgroundHeight);
-
-                ctx.fillStyle = "#333";
-                ctx.font = "bold 13px Arial";
-                ctx.textAlign = "left";
-
-                nonEmptyShells.forEach((shell, displayIndex) => {
-                    const y = yStart + displayIndex * lineHeight;
-                    ctx.fillText(`Shell ${shell.index + 1}: ${shell.count} electrons`, backgroundX + 10, y);
-                });
-            }
-
-            // Draw electron and proton counts
-            const totalElectrons = shellConfig.reduce((sum, count) => sum + count, 0);
-            const totalProtons = element.atomicNumber;
-            let additionalInfoY = 240;
-
-            if ((showElectrons || showProtons) && ((showElectrons && totalElectrons > 0) || (showProtons && totalProtons > 0))) {
-                const infoLines = (showElectrons ? 1 : 0) + (showProtons ? 1 : 0);
-                const infoBackgroundHeight = infoLines * lineHeight + 10;
-                const infoBackgroundY = additionalInfoY - 15;
-                const backgroundWidth = 160;
-                const backgroundX = centerX - backgroundWidth / 2;
-
-                ctx.fillStyle = "rgba(240, 248, 255, 0.95)";
-                ctx.fillRect(backgroundX, infoBackgroundY, backgroundWidth, infoBackgroundHeight);
-                ctx.textAlign = "left";
-
-                if (showElectrons && totalElectrons > 0) {
-                    ctx.fillStyle = "#0066cc";
-                    ctx.font = "bold 14px Arial";
-                    ctx.fillText(`Total Electrons: ${totalElectrons}`, backgroundX + 10, additionalInfoY);
-                    additionalInfoY += lineHeight;
-                }
-
-                if (showProtons && totalProtons > 0) {
-                    ctx.fillStyle = "#cc3300";
-                    ctx.font = "bold 14px Arial";
-                    ctx.fillText(`Total Protons: ${totalProtons}`, backgroundX + 10, additionalInfoY);
-                }
-            }
+          nonEmptyShells.forEach((shell, displayIndex) => {
+            const y = yStart + displayIndex * lineHeight;
+            ctx.fillText(
+              `Shell ${shell.index + 1}: ${shell.count} electrons`,
+              backgroundX + 10,
+              y
+            );
+          });
         }
 
-        // Initialize the application
-        init();
+        // Draw electron and proton counts
+        const totalElectrons = shellConfig.reduce(
+          (sum, count) => sum + count,
+          0
+        );
+        const totalProtons = element.atomicNumber;
+        let additionalInfoY = 240;
+
+        if (
+          (showElectrons || showProtons) &&
+          ((showElectrons && totalElectrons > 0) ||
+            (showProtons && totalProtons > 0))
+        ) {
+          const infoLines = (showElectrons ? 1 : 0) + (showProtons ? 1 : 0);
+          const infoBackgroundHeight = infoLines * lineHeight + 10;
+          const infoBackgroundY = additionalInfoY - 15;
+          const backgroundWidth = 160;
+          const backgroundX = centerX - backgroundWidth / 2;
+
+          ctx.fillStyle = "rgba(240, 248, 255, 0.95)";
+          ctx.fillRect(
+            backgroundX,
+            infoBackgroundY,
+            backgroundWidth,
+            infoBackgroundHeight
+          );
+          ctx.textAlign = "left";
+
+          if (showElectrons && totalElectrons > 0) {
+            ctx.fillStyle = "#0066cc";
+            ctx.font = "bold 14px Arial";
+            ctx.fillText(
+              `Total Electrons: ${totalElectrons}`,
+              backgroundX + 10,
+              additionalInfoY
+            );
+            additionalInfoY += lineHeight;
+          }
+
+          if (showProtons && totalProtons > 0) {
+            ctx.fillStyle = "#cc3300";
+            ctx.font = "bold 14px Arial";
+            ctx.fillText(
+              `Total Protons: ${totalProtons}`,
+              backgroundX + 10,
+              additionalInfoY
+            );
+          }
+        }
+      }
+
+      // Initialize the application
+      init();
     </script>
-</body>
+  </body>
 </html>
